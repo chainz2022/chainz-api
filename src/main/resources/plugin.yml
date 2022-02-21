@@ -1,0 +1,21 @@
+name: ChainZAPI
+author: Estok
+version: 1.0
+main: com.chainz.core.Core
+depend: [ LuckPerms, ProtocolLib ]
+description: ChainZ main API system for all its plugins and services.
+commands:
+  addcoins:
+    description: Add coins to a specific player
+  removecoins:
+    description: Remove coins from a specific player
+  setplayermultiplier:
+    description: Set the coins multiplier to a specific player
+  vanish:
+    description: Vanish yourself
+  addxp:
+    descroption: Add exp to a specific player
+  setlevel:
+    description: Set a player's level
+  nick:
+    description: Change your in-game nick

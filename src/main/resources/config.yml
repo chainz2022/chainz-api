@@ -1,0 +1,29 @@
+Redis:
+  ip: localhost
+  port: 6379
+  #If there is no password in your Redis server, leave this empty.
+  pass: ''
+
+MySQL:
+  ip: localhost
+  port: 3306
+  database: chainz
+  user: root
+  pass: ''
+
+BlockCommands:
+  - 'set'
+
+CustomChat:
+  enable: true
+
+Enable_vanish: true
+Enable_joinfull: true
+Enable_tags: true
+Enable_tablist: true
+
+## IMPORTANT ##
+#
+bungee_server_name: ''
+#
+## IMPORTANT ##

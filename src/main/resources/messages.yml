@@ -1,0 +1,26 @@
+BAD_USAGE: '&cYou must specify the <player> and a <quantity>'
+NO_PERMS: 'Unknown command. Type "/help" for help.'
+
+DO_NOT_EXIST: '&cThat player is not registered on our database'
+COINS_ADDED: '&aSuccessfully added &e<amount> &ato the player &e<player>'
+COINS_REMOVED: '&aSuccessfully removed &e<amount> &afrom the player &e<player>'
+NOT_COINS_TO_REMOVE: '&cPlayer does not have enough coins'
+MULTIPLIER_SET: '&aSuccessfully set a &ex<amount> &amultiplier to &e<player>'
+
+BLOCK_COMMAND: 'Unknown command. Type "/help" for help.'
+VERSION_BLOCK: "&7The server's running &bPaperSpigot_1.8.8_R3"
+
+PLUGIN_BLOCK_LARGE:
+  - "&cA big part of our plugins are custom made and"
+  - "&care not available for download."
+  - ''
+  - "&eDeveloper: &bEstok (Dev Lead)"
+  - ''
+
+HELP_BLOCK_LARGE:
+  - "&b&m----------------------------------------------------"
+  - "&8/&emsg <player>&r &8- &7 Send a private message to a player"
+  - "&8/&er&r &8- &7Reply to the last received private message"
+  - "&8/&efriends&r &8- &7Show help for friends system"
+  - "&8/&eparty&r &8- &7Show help for party system"
+  - "&b&m----------------------------------------------------"

@@ -1,0 +1,23 @@
+package com.chainz.core.async.request;
+
+public enum RequestType {
+    SERVERINFO,
+    COINS,
+    PLAYERMULTIPLIER,
+    LOBBYOPTIONS,
+    RANK,
+    SERVERQUEUE,
+    PLAYERSERVER,
+    PLAYERLEVEL,
+    PLAYEREXP,
+    FRIENDS,
+    PLAYERSETTINGS,
+    PARTY,
+    STATS,
+    SKINDATA,
+    JOINS,
+    NAMEDATA,
+    PLAYERPROFILE,
+    ADREWARDS,
+    SERVERRESERVEDSLOTS
+}

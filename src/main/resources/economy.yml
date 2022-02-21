@@ -1,0 +1,7 @@
+# Usar vault?
+Vault: true
+Economy:
+  # Cantidad de gemas por defecto en un jugador nuevo.
+  default: 0
+  # Cantidad de gemas por defecto en un jugador nuevo.
+  default_multiplier: 0
