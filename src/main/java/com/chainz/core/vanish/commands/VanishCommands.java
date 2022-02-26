@@ -7,11 +7,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
 import static com.chainz.core.Core.col;
 
-public class VanishCommands implements Listener, CommandExecutor {
+public class VanishCommands implements CommandExecutor {
     public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         if (label.equalsIgnoreCase("vanish")) {
             if (sender instanceof Player) {

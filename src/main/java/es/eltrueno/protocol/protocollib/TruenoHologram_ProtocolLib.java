@@ -20,7 +20,7 @@ public class TruenoHologram_ProtocolLib implements TruenoHologram {
 
     private ArrayList<String> lines;
 
-    private double linesdistance = 0.3D;
+    private double lineDistance = 0.3D;
 
     private ArrayList<ArmorStand> armor_lines = new ArrayList<>();
 
@@ -93,11 +93,11 @@ public class TruenoHologram_ProtocolLib implements TruenoHologram {
         int ind = 0;
         for (String line : this.lines) {
             Location finalLoc = this.location.clone();
-            finalLoc.setY(this.location.getY() + this.linesdistance * this.lines.size());
+            finalLoc.setY(this.location.getY() + this.lineDistance * this.lines.size());
             if (this.player != null) {
                 if (ind > 0)
                     finalLoc = getNmsLocation(this.NmsArmorLines.get(ind - 1));
-                finalLoc.setY(finalLoc.getY() - this.linesdistance);
+                finalLoc.setY(finalLoc.getY() - this.lineDistance);
                 WorldServer s = ((CraftWorld) this.location.getWorld()).getHandle();
                 EntityArmorStand stand = new EntityArmorStand(s);
                 this.NmsArmorLines.add(stand);
@@ -105,7 +105,7 @@ public class TruenoHologram_ProtocolLib implements TruenoHologram {
             } else {
                 if (ind > 0)
                     finalLoc = this.armor_lines.get(ind - 1).getLocation();
-                finalLoc.setY(finalLoc.getY() - this.linesdistance);
+                finalLoc.setY(finalLoc.getY() - this.lineDistance);
                 ArmorStand Armorline = (ArmorStand) this.location.getWorld().spawnEntity(finalLoc, EntityType.ARMOR_STAND);
                 Armorline.setBasePlate(false);
                 Armorline.setCustomNameVisible(true);
@@ -135,7 +135,7 @@ public class TruenoHologram_ProtocolLib implements TruenoHologram {
     }
 
     public void setDistanceBetweenLines(Double distance) {
-        this.linesdistance = distance;
+        this.lineDistance = distance;
     }
 
     public void display() {
@@ -158,10 +158,10 @@ public class TruenoHologram_ProtocolLib implements TruenoHologram {
                         if (!newline.equals("")) {
                             EntityArmorStand oldstand = this.NmsArmorLines.get(ind);
                             Location location = this.location.clone();
-                            location.setY(this.location.getY() + this.linesdistance * lines.size());
+                            location.setY(this.location.getY() + this.lineDistance * lines.size());
                             if (ind > 0)
                                 location = getNmsLocation(this.NmsArmorLines.get(ind - 1));
-                            location.setY(location.getY() - this.linesdistance);
+                            location.setY(location.getY() - this.lineDistance);
                             WorldServer worldServer = ((CraftWorld) this.location.getWorld()).getHandle();
                             EntityArmorStand entityArmorStand1 = new EntityArmorStand(worldServer);
                             NmsSpawn(entityArmorStand1, newline, location);
@@ -177,9 +177,9 @@ public class TruenoHologram_ProtocolLib implements TruenoHologram {
                     continue;
                 }
                 Location finalLoc = this.location.clone();
-                finalLoc.setY(this.location.getY() + this.linesdistance * lines.size());
+                finalLoc.setY(this.location.getY() + this.lineDistance * lines.size());
                 finalLoc = getNmsLocation(this.NmsArmorLines.get(ind - 1));
-                finalLoc.setY(finalLoc.getY() - this.linesdistance);
+                finalLoc.setY(finalLoc.getY() - this.lineDistance);
                 WorldServer s = ((CraftWorld) this.location.getWorld()).getHandle();
                 EntityArmorStand stand = new EntityArmorStand(s);
                 this.NmsArmorLines.add(stand);
@@ -212,9 +212,9 @@ public class TruenoHologram_ProtocolLib implements TruenoHologram {
                     continue;
                 }
                 Location finalLoc = this.location.clone();
-                finalLoc.setY(this.location.getY() + this.linesdistance * lines.size());
+                finalLoc.setY(this.location.getY() + this.lineDistance * lines.size());
                 finalLoc = this.armor_lines.get(ind - 1).getLocation();
-                finalLoc.setY(finalLoc.getY() - this.linesdistance);
+                finalLoc.setY(finalLoc.getY() - this.lineDistance);
                 ArmorStand Armorline = (ArmorStand) this.location.getWorld().spawnEntity(finalLoc, EntityType.ARMOR_STAND);
                 Armorline.setBasePlate(false);
                 Armorline.setCustomNameVisible(true);
@@ -247,10 +247,10 @@ public class TruenoHologram_ProtocolLib implements TruenoHologram {
                     if (!text.equals("")) {
                         EntityArmorStand oldstand = this.NmsArmorLines.get(realindex);
                         Location finalLoc = this.location.clone();
-                        finalLoc.setY(this.location.getY() + this.linesdistance * this.lines.size());
+                        finalLoc.setY(this.location.getY() + this.lineDistance * this.lines.size());
                         if (realindex > 0)
                             finalLoc = getNmsLocation(this.NmsArmorLines.get(realindex - 1));
-                        finalLoc.setY(finalLoc.getY() - this.linesdistance);
+                        finalLoc.setY(finalLoc.getY() - this.lineDistance);
                         WorldServer s = ((CraftWorld) this.location.getWorld()).getHandle();
                         EntityArmorStand stand = new EntityArmorStand(s);
                         NmsSpawn(stand, text, finalLoc);

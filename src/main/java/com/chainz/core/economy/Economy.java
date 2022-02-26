@@ -1,25 +1,17 @@
 package com.chainz.core.economy;
 
-import com.chainz.core.async.reply.CallbackReply;
+import java.util.UUID;
 
 public interface Economy {
-    Double getCoins(String p0);
+    Double getCoins(UUID p0);
 
-    void getCoinsAsync(String p0, CallbackReply p1);
+    Double getPlayerMultiplier(UUID p0);
 
-    Double getPlayerMultiplier(String p0);
+    boolean playerExists(UUID p0);
 
-    Boolean playerExists(String p0);
+    boolean addCoins(UUID p0, Double p1, boolean p2);
 
-    void addCoins(String p0, Double p1, boolean p2);
+    boolean removeCoins(UUID p0, Double p1);
 
-    void addCoinsAsync(String p0, Double p1, boolean p2, CallbackReply p3);
-
-    void removeCoins(String p0, Double p1);
-
-    void removeCoinsAsync(String p0, Double p1, CallbackReply p2);
-
-    void setPlayerMultiplier(String p0, Double p1);
-
-    void setPlayerMultiplierAsync(String p0, Double p1, CallbackReply p2);
+    boolean setPlayerMultiplier(UUID p0, Double p1);
 }

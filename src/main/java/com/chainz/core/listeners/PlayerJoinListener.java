@@ -10,7 +10,6 @@ import com.chainz.core.lobbyoptions.LobbyOptionsManager;
 import com.chainz.core.playerlevel.PlayerLevelManager;
 import com.chainz.core.playersettings.PlayerSettingsManager;
 import com.chainz.core.playerskindata.GameProfileChanger;
-import com.chainz.core.sql.SQLManager;
 import com.chainz.core.utils.Nametag;
 import com.chainz.core.utils.Tablist;
 import com.chainz.core.utils.config.ConfigManager;
@@ -28,9 +27,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 
 import static com.chainz.core.Core.col;
@@ -55,33 +51,6 @@ public class PlayerJoinListener implements Listener {
         }
     }
 
-    private void setDefaultEconomyTable(Player p) {
-        Bukkit.getScheduler().runTaskAsynchronously(Core.core, () -> {
-            String uuid = p.getUniqueId().toString();
-            int defaultcoins = ConfigManager.get("economy.yml").getInt("economy.default");
-            try {
-                Statement statement = SQLManager.getConnection().createStatement();
-                ResultSet res = statement.executeQuery("SELECT * FROM economy WHERE uuid = '" + uuid + "';");
-                res.next();
-                if (res.getRow() == 0) {
-                    statement.executeUpdate("INSERT INTO economy (`uuid`, `coins`, `multiplier`) VALUES ('" + uuid + "', '" + defaultcoins + "', '" + 1 + "');");
-                }
-                try {
-                    res.close();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-                try {
-                    statement.close();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            } catch (SQLException ex2) {
-                ex2.printStackTrace();
-            }
-        });
-    }
-
     private boolean canFly(Player p) {
         return p.hasPermission("chainz.fly");
     }
@@ -94,21 +63,12 @@ public class PlayerJoinListener implements Listener {
     public void login(PlayerLoginEvent ev) {
         Player p = ev.getPlayer();
 
-        ChainZAPI.getPlayerSkinDataManager().getGameProfileChange(p, new CallbackReply() {
-            @Override
-            public void error(Exception ex) {
-            }
-
-            @Override
-            public void then(Reply reply) {
-                if (reply != null) {
-                    PlayerSkinDataReply skinDataReply = (PlayerSkinDataReply) reply;
-                    GameProfile profile = new GameProfile(p.getUniqueId(), skinDataReply.getName());
-                    profile.getProperties().put("textures", new Property("textures", skinDataReply.getValue(), skinDataReply.getSignature()));
-                    GameProfileChanger.changeGameProfileInstantly(p, profile);
-                }
-            }
-        });
+        PlayerSkinDataReply skinDataReply = ChainZAPI.getPlayerSkinDataManager().getGameProfileChange(p);
+        if (skinDataReply != null) {
+            GameProfile profile = new GameProfile(p.getUniqueId(), skinDataReply.getName());
+            profile.getProperties().put("textures", new Property("textures", skinDataReply.getValue(), skinDataReply.getSignature()));
+            GameProfileChanger.changeGameProfileInstantly(p, profile);
+        }
     }
 
     @EventHandler
@@ -116,7 +76,6 @@ public class PlayerJoinListener implements Listener {
         Player p = ev.getPlayer();
         LobbyOptionsManager.setDefaults(p);
         PlayerLevelManager.setDefaults(p);
-        this.setDefaultEconomyTable(p);
         PlayerSettingsManager.setDefaults(p);
         if (Bukkit.getPluginManager().getPlugin("ChainZLobby") != null) {
             ChainZAPI.getLobbyOptions().getLobbyOptionsAsync(p.getUniqueId().toString(), new CallbackReply() {

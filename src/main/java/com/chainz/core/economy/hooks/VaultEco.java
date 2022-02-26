@@ -10,7 +10,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 
 import java.util.List;
-import java.util.UUID;
 
 public class VaultEco implements Economy {
     public static void register() {
@@ -44,7 +43,7 @@ public class VaultEco implements Economy {
     }
 
     public String currencyNamePlural() {
-        return "Coins";
+        return "Gems";
     }
 
     public String currencyNameSingular() {
@@ -68,11 +67,11 @@ public class VaultEco implements Economy {
     }
 
     public double getBalance(String name) {
-        return ChainZAPI.getEconomyManager().getCoins(Bukkit.getPlayer(name).getUniqueId().toString());
+        return ChainZAPI.getEconomyManager().getCoins(Bukkit.getPlayer(name).getUniqueId());
     }
 
     public double getBalance(OfflinePlayer offlinePlayer) {
-        return ChainZAPI.getEconomyManager().getCoins(offlinePlayer.getUniqueId().toString());
+        return ChainZAPI.getEconomyManager().getCoins(offlinePlayer.getUniqueId());
     }
 
     public double getBalance(String name, String world) {
@@ -106,14 +105,26 @@ public class VaultEco implements Economy {
     }
 
     public EconomyResponse withdrawPlayer(String name, double amount) {
-        Double actual = ChainZAPI.getEconomyManager().getCoins(UUID.fromString(name).toString());
-        ChainZAPI.getEconomyManager().removeCoins(UUID.fromString(name).toString(), amount);
+        if (amount < 0.0D)
+            return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.FAILURE, "Cannot withdraw negative funds!");
+
+        Double actual = ChainZAPI.getEconomyManager().getCoins(Bukkit.getPlayer(name).getUniqueId());
+        if (actual >= amount)
+            return new EconomyResponse(0.0D, actual, EconomyResponse.ResponseType.FAILURE, "Insufficient funds");
+
+        ChainZAPI.getEconomyManager().removeCoins(Bukkit.getPlayer(name).getUniqueId(), amount);
         return new EconomyResponse(amount, (actual - amount), EconomyResponse.ResponseType.SUCCESS, null);
     }
 
     public EconomyResponse withdrawPlayer(OfflinePlayer offpl, double amount) {
-        Double actual = ChainZAPI.getEconomyManager().getCoins(UUID.fromString(offpl.getName()).toString());
-        ChainZAPI.getEconomyManager().removeCoins(UUID.fromString(offpl.getName()).toString(), amount);
+        if (amount < 0.0D)
+            return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.FAILURE, "Cannot withdraw negative funds!");
+
+        Double actual = ChainZAPI.getEconomyManager().getCoins(offpl.getUniqueId());
+        if (actual >= amount)
+            return new EconomyResponse(0.0D, actual, EconomyResponse.ResponseType.FAILURE, "Insufficient funds");
+
+        ChainZAPI.getEconomyManager().removeCoins(offpl.getUniqueId(), amount);
         return new EconomyResponse(amount, (actual - amount), EconomyResponse.ResponseType.SUCCESS, null);
     }
 
@@ -126,14 +137,20 @@ public class VaultEco implements Economy {
     }
 
     public EconomyResponse depositPlayer(String name, double amount) {
-        Double actual = ChainZAPI.getEconomyManager().getCoins(UUID.fromString(name).toString());
-        ChainZAPI.getEconomyManager().addCoins(UUID.fromString(name).toString(), amount, true);
+        if (amount < 0.0D)
+            return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.FAILURE, "Cannot desposit negative funds!");
+
+        Double actual = ChainZAPI.getEconomyManager().getCoins(Bukkit.getPlayer(name).getUniqueId());
+        ChainZAPI.getEconomyManager().addCoins(Bukkit.getPlayer(name).getUniqueId(), amount, true);
         return new EconomyResponse(amount, (actual + (int) amount), EconomyResponse.ResponseType.SUCCESS, null);
     }
 
     public EconomyResponse depositPlayer(OfflinePlayer offpl, double amount) {
-        Double actual = ChainZAPI.getEconomyManager().getCoins(offpl.getUniqueId().toString());
-        ChainZAPI.getEconomyManager().addCoins(offpl.getUniqueId().toString(), amount, true);
+        if (amount < 0.0D)
+            return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.FAILURE, "Cannot desposit negative funds!");
+
+        Double actual = ChainZAPI.getEconomyManager().getCoins(offpl.getUniqueId());
+        ChainZAPI.getEconomyManager().addCoins(offpl.getUniqueId(), amount, true);
         return new EconomyResponse(amount, (actual + (int) amount), EconomyResponse.ResponseType.SUCCESS, null);
     }
 

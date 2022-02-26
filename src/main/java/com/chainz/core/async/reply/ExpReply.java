@@ -2,12 +2,14 @@ package com.chainz.core.async.reply;
 
 import com.chainz.core.async.request.RequestType;
 
+import java.util.UUID;
+
 public class ExpReply extends Reply {
-    protected String uuid;
+    protected UUID uuid;
     protected Integer exp;
     protected Integer exptolevel;
 
-    public ExpReply(String uuid, Integer exp, Integer exptolevel) {
+    public ExpReply(UUID uuid, Integer exp, Integer exptolevel) {
         this.uuid = uuid;
         this.exp = exp;
         this.exptolevel = exptolevel;
@@ -18,7 +20,7 @@ public class ExpReply extends Reply {
         return RequestType.PLAYERLEVEL;
     }
 
-    public String getUUID() {
+    public UUID getUUID() {
         return this.uuid;
     }
 

@@ -27,7 +27,6 @@ public class ArenaDataManager implements ArenaData, Listener {
                 processQueue();
             }
         };
-        arenaTicker.runTaskTimerAsynchronously(Core.core, 0L, 60L);
     }
 
     @Override
@@ -100,8 +99,8 @@ public class ArenaDataManager implements ArenaData, Listener {
                 player.sendMessage(Core.col("&aYou're already in the queue for " + gameQueue.get(player).getName() + ", you should be redirected any time now..."));
                 return false;
             } else {
-                gameQueue.remove(player);
                 player.sendMessage(Core.col("&cLeaving " + gameQueue.get(player).getName() + " queue"));
+                gameQueue.remove(player);
             }
         }
 

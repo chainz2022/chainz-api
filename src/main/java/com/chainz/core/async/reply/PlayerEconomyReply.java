@@ -3,18 +3,19 @@ package com.chainz.core.async.reply;
 import com.chainz.core.async.request.RequestType;
 
 import java.text.DecimalFormat;
+import java.util.UUID;
 
-public class CoinsReply extends Reply {
-    protected String uuid;
+public class PlayerEconomyReply extends Reply {
+    protected UUID uuid;
     protected Double coins;
     protected Double multiplier;
 
-    public CoinsReply(String uuid, Double coins) {
+    public PlayerEconomyReply(UUID uuid, Double coins) {
         this.uuid = uuid;
         this.coins = coins;
     }
 
-    public CoinsReply(String uuid, Double coins, Double multiplier) {
+    public PlayerEconomyReply(UUID uuid, Double coins, Double multiplier) {
         this.uuid = uuid;
         this.coins = coins;
         this.multiplier = multiplier;
@@ -25,7 +26,7 @@ public class CoinsReply extends Reply {
         return RequestType.COINS;
     }
 
-    public String getUUID() {
+    public UUID getUUID() {
         return this.uuid;
     }
 

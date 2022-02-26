@@ -1,13 +1,15 @@
 package com.chainz.core.namedata;
 
-import com.chainz.core.async.reply.CallbackReply;
+import com.chainz.core.async.reply.NameReply;
+
+import java.util.UUID;
 
 public interface NameData {
-    void getNameFromUuidAsync(final String p0, final CallbackReply p1);
+    NameReply getNameFromUUID(UUID p0);
 
-    void getUUIDFromAllMethods(final String p0, final CallbackReply p1);
+    NameReply getUUIDFromAllMethods(String p0);
 
-    void getRealUUIDFromFakeNick(final String p0, final CallbackReply p1);
+    NameReply getRealUUIDFromFakeNick(String p0);
 
-    void existsName(final String p0, final CallbackReply p1);
+    boolean existsName(String p0);
 }

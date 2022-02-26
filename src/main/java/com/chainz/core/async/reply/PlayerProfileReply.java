@@ -4,11 +4,13 @@ import com.chainz.core.async.request.RequestType;
 import com.chainz.core.playerprofile.OnlinePlayerProfile;
 import com.chainz.core.playerprofile.PlayerProfile;
 
+import java.util.UUID;
+
 public class PlayerProfileReply extends Reply {
-    protected String uuid;
+    protected UUID uuid;
     protected PlayerProfile playerprofile;
 
-    public PlayerProfileReply(String uuid, PlayerProfile profile) {
+    public PlayerProfileReply(UUID uuid, PlayerProfile profile) {
         this.uuid = uuid;
         this.playerprofile = profile;
     }
@@ -18,11 +20,11 @@ public class PlayerProfileReply extends Reply {
         return RequestType.PLAYERPROFILE;
     }
 
-    public String getUUID() {
+    public UUID getUUID() {
         return this.uuid;
     }
 
-    public PlayerProfile getPlayerprofile() {
+    public PlayerProfile getPlayerProfile() {
         return this.playerprofile;
     }
 

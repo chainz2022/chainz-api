@@ -1,7 +1,9 @@
 package com.chainz.core.playerserver;
 
-import com.chainz.core.async.reply.CallbackReply;
+import com.chainz.core.async.reply.PlayerServerReply;
+
+import java.util.UUID;
 
 public interface PlayerServer {
-    void getPlayerServer(String p0, CallbackReply p1);
+    PlayerServerReply getPlayerServer(UUID p0);
 }

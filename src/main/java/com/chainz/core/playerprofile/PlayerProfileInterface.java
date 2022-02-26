@@ -1,7 +1,9 @@
 package com.chainz.core.playerprofile;
 
-import com.chainz.core.async.reply.CallbackReply;
+import java.util.UUID;
 
 public interface PlayerProfileInterface {
-    void getPlayerProfileFromUuid(String p0, CallbackReply p1);
+    PlayerProfile getPlayerProfileFromUUID(UUID p0);
+
+    void consistency(UUID uniqueId);
 }

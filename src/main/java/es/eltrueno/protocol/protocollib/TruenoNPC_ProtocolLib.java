@@ -275,36 +275,34 @@ public class TruenoNPC_ProtocolLib implements TruenoNPC {
         JsonSkinData cachedskin = getCachedSkin();
         if (cachedskin == null || (((actualdate.getTime()) - (getCachedSkin().getTimeUpdated())) >= 518400)) {
             if (this.skin.getSkinType() == SkinType.PLAYER) {
-                this.skin.getSkinDataAsync(skinData -> {
-                    GameProfile profile = getGameProfile(StringUtils.getRandomString(), skinData);
-                    if (skinData != null) {
-                        if (player_cache.containsKey(p)) {
-                            player_cache.replace(p, skinData);
-                        } else {
-                            player_cache.put(p, skinData);
-                        }
-                        spawnEntity(p, profile);
+                SkinData skinData = this.skin.getSkinData(p);
+                GameProfile profile = getGameProfile(StringUtils.getRandomString(), skinData);
+                if (skinData != null) {
+                    if (player_cache.containsKey(p)) {
+                        player_cache.replace(p, skinData);
                     } else {
-                        profile = getGameProfile(StringUtils.getRandomString(), null);
-                        if (player_cache.containsKey(p)) {
-                            profile = getGameProfile(StringUtils.getRandomString(), player_cache.get(p));
-                        }
-                        spawnEntity(p, profile);
+                        player_cache.put(p, skinData);
                     }
-                }, p);
+                    spawnEntity(p, profile);
+                } else {
+                    profile = getGameProfile(StringUtils.getRandomString(), null);
+                    if (player_cache.containsKey(p)) {
+                        profile = getGameProfile(StringUtils.getRandomString(), player_cache.get(p));
+                    }
+                    spawnEntity(p, profile);
+                }
             } else {
-                this.skin.getSkinDataAsync(skinData -> {
-                    GameProfile profile = getGameProfile(StringUtils.getRandomString(), skinData);
-                    if (skinData != null) {
-                        setGameProfile(profile);
-                        cacheSkin(skinData);
-                        spawnEntity(p);
-                    } else {
-                        profile = getGameProfile(StringUtils.getRandomString(), null);
-                        setGameProfile(profile);
-                        spawnEntity(p);
-                    }
-                });
+                SkinData skinData = this.skin.getSkinData();
+                GameProfile profile = getGameProfile(StringUtils.getRandomString(), skinData);
+                if (skinData != null) {
+                    setGameProfile(profile);
+                    cacheSkin(skinData);
+                    spawnEntity(p);
+                } else {
+                    profile = getGameProfile(StringUtils.getRandomString(), null);
+                    setGameProfile(profile);
+                    spawnEntity(p);
+                }
             }
         } else {
             GameProfile profile = getGameProfile(StringUtils.getRandomString(), cachedskin.getSkinData());

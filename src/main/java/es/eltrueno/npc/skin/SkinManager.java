@@ -2,26 +2,33 @@ package es.eltrueno.npc.skin;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
+
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static com.chainz.core.utils.JsonUtils.getJsonResponse;
 
 public class SkinManager {
-    public static void getUUIDFromName(final Plugin plugin, String name, Callback<String> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+    public static UUID getUUIDFromName(String name) {
+        CompletableFuture<UUID> cf = CompletableFuture.supplyAsync(() -> {
             long unixTime = System.currentTimeMillis() / 1000L;
             JsonObject jsonresponse = getJsonResponse("https://api.mojang.com/users/profiles/minecraft/" + name + "?at=" + unixTime).getAsJsonObject();
             if (jsonresponse != null && jsonresponse.get("error") == null) {
-                callback.call(jsonresponse.get("id").getAsString());
+                return UUID.fromString(jsonresponse.get("id").getAsString());
             } else {
-                callback.call(null);
+                return null;
             }
         });
+        try {
+            return cf.get();
+        } catch (InterruptedException | java.util.concurrent.ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public static void getSkinFromMojangAsync(final Plugin plugin, final String identifier, final SkinDataReply skinreply) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+    public static SkinData getSkinFromMojangAsync(String identifier) {
+        CompletableFuture<SkinData> cf = CompletableFuture.supplyAsync(() -> {
             if (identifier.length() > 16) {
                 JsonElement jsonresponse = getJsonResponse("https://sessionserver.mojang.com/session/minecraft/profile/" + identifier + "?unsigned=false");
                 if (jsonresponse != null) {
@@ -30,47 +37,36 @@ public class SkinManager {
                         JsonObject prop = response.getAsJsonArray("properties").get(0).getAsJsonObject();
                         String value = prop.get("value").getAsString();
                         String signature = prop.get("signature").getAsString();
-                        skinreply.done(new SkinData(value, signature));
+                        return new SkinData(value, signature);
                     } else {
-                        skinreply.done(null);
+                        return null;
                     }
                 } else {
-                    skinreply.done(null);
+                    return null;
                 }
             } else {
-                getUUIDFromName(plugin, identifier, uuid -> {
-                    JsonElement jsonresponse = getJsonResponse("https://sessionserver.mojang.com/session/minecraft/profile/" + identifier + "?unsigned=false");
-                    if (jsonresponse != null) {
-                        JsonObject response = jsonresponse.getAsJsonObject();
-                        if (!response.has("error")) {
-                            JsonObject prop = response.getAsJsonArray("properties").get(0).getAsJsonObject();
-                            String value = prop.get("value").getAsString();
-                            String signature = prop.get("signature").getAsString();
-                            skinreply.done(new SkinData(value, signature));
-                        } else {
-                            skinreply.done(null);
-                        }
+                UUID uuid = getUUIDFromName(identifier);
+                JsonElement jsonresponse = getJsonResponse("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.toString() + "?unsigned=false");
+                if (jsonresponse != null) {
+                    JsonObject response = jsonresponse.getAsJsonObject();
+                    if (!response.has("error")) {
+                        JsonObject prop = response.getAsJsonArray("properties").get(0).getAsJsonObject();
+                        String value = prop.get("value").getAsString();
+                        String signature = prop.get("signature").getAsString();
+                        return new SkinData(value, signature);
                     } else {
-                        skinreply.done(null);
+                        return null;
                     }
-                });
+                } else {
+                    return null;
+                }
             }
         });
+        try {
+            return cf.get();
+        } catch (InterruptedException | java.util.concurrent.ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
-
-    public static void getSkinFromMineskinAsync(final Plugin plugin, final String uuid, final SkinDataReply skinreply) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            JsonObject jsonresponse = getJsonResponse("https://api.mineskin.org/get/uuid/" + uuid).getAsJsonObject();
-            if (jsonresponse != null && !jsonresponse.has("error")) {
-                JsonObject textureProperty = jsonresponse.getAsJsonObject("data").getAsJsonObject("texture");
-                String value = textureProperty.get("value").getAsString();
-                String signature = textureProperty.get("signature").getAsString();
-                skinreply.done(new SkinData(value, signature));
-            } else {
-                skinreply.done(null);
-            }
-        });
-    }
-
-
 }

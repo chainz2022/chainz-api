@@ -2,8 +2,6 @@ package com.chainz.core.playerskindata.commands;
 
 import com.chainz.core.ChainZAPI;
 import com.chainz.core.Core;
-import com.chainz.core.async.reply.CallbackReply;
-import com.chainz.core.async.reply.Reply;
 import com.chainz.core.utils.config.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -12,8 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import redis.clients.jedis.Jedis;
-
-import javax.naming.NameAlreadyBoundException;
 
 import static com.chainz.core.Core.col;
 
@@ -46,25 +42,17 @@ public class PlayerSkinCommands implements Listener, CommandExecutor {
                                 p.sendMessage(col("&cThe name can't be more than 16 characters long"));
                                 return true;
                             }
-                            ChainZAPI.getPlayerSkinDataManager().changeNickname(p, args[0], new CallbackReply() {
-                                @Override
-                                public void error(final Exception ex) {
-                                    if (ex instanceof NullPointerException) {
-                                        p.sendMessage(col("&cAn unknown error has ocurred, please report this to a server admin"));
-                                    } else if (ex instanceof NameAlreadyBoundException) {
-                                        p.sendMessage(col("&cThat name is already in use, please try again"));
-                                    }
-                                }
 
-                                @Override
-                                public void then(final Reply reply) {
-                                    p.sendMessage(col("&eYou've successfully changed your nick to &f" + args[0]));
-                                    p.sendMessage(col("&eYou need to change servers/re-log to apply changes."));
-                                    p.sendMessage(col("&eYour rank will show as &a&lVIP &ealthough your current rank and permissions will remain"));
-                                    p.sendMessage(col("&eIf you stop seeing the world -> &fF3+A"));
-                                    p.sendMessage(col("&eYou can recover your identity by re-logging or by using &8/&enick off"));
-                                }
-                            });
+                            if (ChainZAPI.getPlayerSkinDataManager().changeNickname(p, args[0])) {
+                                p.sendMessage(col("&eYou've successfully changed your nick to &f" + args[0]));
+                                p.sendMessage(col("&eYou need to change servers/re-log to apply changes."));
+                                p.sendMessage(col("&eYour rank will show as &a&lVIP &ealthough your current rank and permissions will remain"));
+                                p.sendMessage(col("&eIf you stop seeing the world -> &fF3+A"));
+                                p.sendMessage(col("&eYou can recover your identity by re-logging or by using &8/&enick off"));
+                            } else {
+                                p.sendMessage(col("&cThat name is already in use, please try again"));
+                            }
+
                         }
                     } else {
                         p.sendMessage(col("&cYou don't have the permission to execute this command!"));

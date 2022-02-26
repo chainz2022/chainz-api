@@ -6,6 +6,7 @@ import com.chainz.core.listeners.ChatListener;
 import com.chainz.core.listeners.CommandBlock;
 import com.chainz.core.listeners.PlayerJoinListener;
 import com.chainz.core.playerlevel.commands.PlayerLevelCommands;
+import com.chainz.core.playerprofile.listeners.PlayerProfileListener;
 import com.chainz.core.playerskindata.commands.PlayerSkinCommands;
 import com.chainz.core.sql.SQLManager;
 import com.chainz.core.utils.config.ConfigManager;
@@ -89,8 +90,6 @@ public class Core extends JavaPlugin {
 
     public void loadCommands() {
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(), this);
-        Bukkit.getPluginManager().registerEvents(new EconomyCommands(), this);
-        Bukkit.getPluginManager().registerEvents(new VanishCommands(), this);
         Bukkit.getPluginManager().registerEvents(new ChatListener(), this);
         Bukkit.getPluginManager().registerEvents(new CommandBlock(), this);
 
@@ -101,6 +100,8 @@ public class Core extends JavaPlugin {
         getCommand("addxp").setExecutor(new PlayerLevelCommands());
         getCommand("setlevel").setExecutor(new PlayerLevelCommands());
         getCommand("nick").setExecutor(new PlayerSkinCommands());
+
+        Bukkit.getPluginManager().registerEvents(new PlayerProfileListener(), this);
 
         if (Bukkit.getPluginManager().getPlugin("ChainZLobby") != null) {
             if (Bukkit.getPluginManager().getPlugin("ProtocolLib") != null) {
@@ -113,8 +114,10 @@ public class Core extends JavaPlugin {
         }
     }
 
+
     @Override
     public void onDisable() {
+        ChainZAPI.getPlayerProfileManager().saveAll();
         ChainZAPI.getServerData().setServerStatusSync(Boolean.FALSE);
         SQLManager.closeConnection();
         try {

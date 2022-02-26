@@ -1,14 +1,12 @@
 package com.chainz.core.namedata;
 
 import com.chainz.core.Core;
-import com.chainz.core.async.reply.CallbackReply;
 import com.chainz.core.async.reply.NameReply;
 import com.chainz.core.sql.SQLManager;
 import com.chainz.core.utils.config.ConfigManager;
 import com.google.common.net.HttpHeaders;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import org.bukkit.Bukkit;
 import redis.clients.jedis.Jedis;
 
 import java.io.BufferedReader;
@@ -21,20 +19,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class NameDataManager implements NameData {
     @Override
-    public void getNameFromUuidAsync(final String uuid, final CallbackReply callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(Core.core, () -> {
+    public NameReply getNameFromUUID(UUID uuid) {
+        CompletableFuture<NameReply> cf = CompletableFuture.supplyAsync(() -> {
             try {
-                PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT * FROM namedata WHERE uuid = '" + uuid + "';");
+                PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT * FROM namedata WHERE uuid = '" + uuid.toString() + "';");
                 ResultSet res = statement.executeQuery();
+                NameReply reply;
                 if (res.next()) {
-                    final NameReply reply = new NameReply(uuid, res.getString("name"));
-                    callback.then(reply);
+                    reply = new NameReply(uuid, res.getString("name"));
                 } else {
-                    final NameReply reply = new NameReply(uuid, "Desconocido");
-                    callback.then(reply);
+                    reply = new NameReply(uuid, "Unknown");
                 }
                 try {
                     res.close();
@@ -46,14 +45,21 @@ public class NameDataManager implements NameData {
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
+                return reply;
             } catch (Exception ex2) {
                 ex2.printStackTrace();
-                callback.error(ex2);
+                return null;
             }
         });
+        try {
+            return cf.get();
+        } catch (InterruptedException | java.util.concurrent.ExecutionException e) {
+            e.printStackTrace();
+            return new NameReply(uuid, "Unknown");
+        }
     }
 
-    private String fromTrimmed(final String trimmedUUID) throws IllegalArgumentException {
+    private UUID fromTrimmed(String trimmedUUID) throws IllegalArgumentException {
         if (trimmedUUID == null) {
             throw new IllegalArgumentException();
         }
@@ -66,7 +72,7 @@ public class NameDataManager implements NameData {
         } catch (StringIndexOutOfBoundsException e) {
             throw new IllegalArgumentException();
         }
-        return builder.toString();
+        return UUID.fromString(builder.toString());
     }
 
     private HttpURLConnection getConnection(String url) throws IOException {
@@ -88,90 +94,100 @@ public class NameDataManager implements NameData {
     }
 
     @Override
-    public void getUUIDFromAllMethods(String name, final CallbackReply callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(Core.core, () -> {
-            try {
-                try (Jedis j = Core.pool.getResource()) {
-                    if (!ConfigManager.get("config.yml").getString("Redis.pass").isEmpty()) {
-                        j.auth(ConfigManager.get("config.yml").getString("Redis.pass"));
-                    }
-                    j.select(2);
-                    if (j.exists("fakenick:" + name)) {
-                        final NameReply nameReply = new NameReply(j.get("fakenick:" + name), name);
-                        callback.then(nameReply);
-                    } else {
-                        HttpURLConnection connection = getConnection("https://api.ashcon.app/mojang/v2/uuid/" + name);
-                        int responseCode = connection.getResponseCode();
+    public NameReply getUUIDFromAllMethods(String name) {
+        CompletableFuture<NameReply> cf = CompletableFuture.supplyAsync(() -> {
+            try (Jedis j = Core.pool.getResource()) {
+                if (!ConfigManager.get("config.yml").getString("Redis.pass").isEmpty()) {
+                    j.auth(ConfigManager.get("config.yml").getString("Redis.pass"));
+                }
+                j.select(2);
+                NameReply nameReply;
+                if (j.exists("fakenick:" + name)) {
+                    nameReply = new NameReply(UUID.fromString(j.get("fakenick:" + name)), name);
+                } else {
+                    HttpURLConnection connection = getConnection("https://api.ashcon.app/mojang/v2/uuid/" + name);
+                    int responseCode = connection.getResponseCode();
 
-                        if (responseCode == 200) {
-                            NameReply nameReply2 = new NameReply(NameDataManager.this.fromTrimmed(getJson(connection).getAsJsonPrimitive().getAsString()), name);
-                            callback.then(nameReply2);
-                        } else {
-                            try {
-                                PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT * FROM namedata WHERE name = '" + name + "';");
-                                ResultSet res = statement.executeQuery();
-                                if (res.next()) {
-                                    final NameReply reply = new NameReply(res.getString("uuid"), res.getString("name"));
-                                    callback.then(reply);
-                                } else {
-                                    callback.error(new Exception("User not found"));
-                                }
-                                try {
-                                    res.close();
-                                } catch (SQLException ex) {
-                                    ex.printStackTrace();
-                                }
-                                try {
-                                    statement.close();
-                                } catch (SQLException ex) {
-                                    ex.printStackTrace();
-                                }
-                            } catch (Exception ex2) {
-                                ex2.printStackTrace();
-                                callback.error(ex2);
+                    if (responseCode == 200) {
+                        nameReply = new NameReply(NameDataManager.this.fromTrimmed(getJson(connection).getAsJsonPrimitive().getAsString()), name);
+                    } else {
+                        try {
+                            PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT * FROM namedata WHERE name = '" + name + "';");
+                            ResultSet res = statement.executeQuery();
+                            if (res.next()) {
+                                nameReply = new NameReply(UUID.fromString(res.getString("uuid")), res.getString("name"));
+                            } else {
+                                return null;
                             }
+                            try {
+                                res.close();
+                            } catch (SQLException ex) {
+                                ex.printStackTrace();
+                            }
+                            try {
+                                statement.close();
+                            } catch (SQLException ex) {
+                                ex.printStackTrace();
+                            }
+                        } catch (Exception ex2) {
+                            ex2.printStackTrace();
+                            return null;
                         }
                     }
                 }
-            } catch (Exception ex3) {
-                callback.error(ex3);
+
+                return nameReply;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
             }
         });
+        try {
+            return cf.get();
+        } catch (InterruptedException | java.util.concurrent.ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
-    public void getRealUUIDFromFakeNick(final String fakename, final CallbackReply callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(Core.core, () -> {
+    public NameReply getRealUUIDFromFakeNick(final String fakename) {
+        CompletableFuture<NameReply> cf = CompletableFuture.supplyAsync(() -> {
             try {
                 try (Jedis j = Core.pool.getResource()) {
                     if (!ConfigManager.get("config.yml").getString("Redis.pass").isEmpty()) {
                         j.auth(ConfigManager.get("config.yml").getString("Redis.pass"));
                     }
                     j.select(2);
+                    NameReply nameReply;
                     if (j.exists("fakenick:" + fakename)) {
-                        final NameReply nameReply = new NameReply(j.get("fakenick:" + fakename), fakename);
-                        callback.then(nameReply);
+                        return new NameReply(UUID.fromString(j.get("fakenick:" + fakename)), fakename);
                     } else {
-                        callback.error(new Exception("Not found"));
+                        return null;
                     }
                 }
             } catch (Exception ex) {
-                callback.error(ex);
+                ex.printStackTrace();
+                return null;
             }
         });
+        try {
+            return cf.get();
+        } catch (InterruptedException | java.util.concurrent.ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
-    public void existsName(final String name, final CallbackReply callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(Core.core, () -> {
+    public boolean existsName(final String name) {
+        CompletableFuture<Boolean> cf = CompletableFuture.supplyAsync(() -> {
             try {
                 final Statement statement = SQLManager.getConnection().createStatement();
                 final ResultSet res = statement.executeQuery("SELECT * FROM namedata WHERE name = '" + name + "';");
-                if (res.next()) {
-                    callback.then(null);
-                } else {
-                    callback.error(new Exception("Not found"));
-                }
+                boolean result;
+                result = res.next();
+
                 try {
                     res.close();
                 } catch (SQLException ex) {
@@ -182,10 +198,17 @@ public class NameDataManager implements NameData {
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
+                return result;
             } catch (Exception ex2) {
                 ex2.printStackTrace();
-                callback.error(ex2);
+                return true;
             }
         });
+        try {
+            return cf.get();
+        } catch (InterruptedException | java.util.concurrent.ExecutionException e) {
+            e.printStackTrace();
+            return true;
+        }
     }
 }

@@ -24,31 +24,17 @@ public class TruenoNPCSkin {
         return type;
     }
 
-    public void getSkinDataAsync(SkinDataReply skinreply) {
+    public SkinData getSkinData() {
         if (type == SkinType.IDENTIFIER) {
-            SkinManager.getSkinFromMojangAsync(plugin, this.identifier, skinData -> {
-                if (skinData != null) {
-                    skinreply.done(skinData);
-                } else {
-                    SkinManager.getSkinFromMineskinAsync(plugin, identifier, skinData1 -> {
-                        skinreply.done(skinData1);
-                    });
-                }
-            });
+            return SkinManager.getSkinFromMojangAsync(this.identifier);
         }
+        return null;
     }
 
-    public void getSkinDataAsync(SkinDataReply skinreply, Player p) {
+    public SkinData getSkinData(Player p) {
         if (type == SkinType.PLAYER) {
-            SkinManager.getSkinFromMojangAsync(plugin, p.getUniqueId().toString(), skinData -> {
-                if (skinData != null) {
-                    skinreply.done(skinData);
-                } else {
-                    SkinManager.getSkinFromMineskinAsync(plugin, p.getUniqueId().toString(), skinData1 -> {
-                        skinreply.done(skinData1);
-                    });
-                }
-            });
+            return SkinManager.getSkinFromMojangAsync(p.getUniqueId().toString());
         }
+        return null;
     }
 }

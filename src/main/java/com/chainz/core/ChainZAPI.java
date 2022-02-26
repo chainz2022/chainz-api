@@ -6,7 +6,7 @@ import com.chainz.core.async.ChainZAsync;
 import com.chainz.core.async.adrewards.AdReward;
 import com.chainz.core.async.adrewards.JAdReward;
 import com.chainz.core.chat.displayformatter.DisplayFormatter;
-import com.chainz.core.economy.Economy;
+import com.chainz.core.economy.EconomyDatabase;
 import com.chainz.core.economy.EconomyManager;
 import com.chainz.core.joins.Joins;
 import com.chainz.core.joins.JoinsManager;
@@ -16,7 +16,7 @@ import com.chainz.core.namedata.NameData;
 import com.chainz.core.namedata.NameDataManager;
 import com.chainz.core.playerlevel.PlayerLevel;
 import com.chainz.core.playerlevel.PlayerLevelManager;
-import com.chainz.core.playerprofile.PlayerProfileInterface;
+import com.chainz.core.playerprofile.PlayerProfileDatabase;
 import com.chainz.core.playerprofile.PlayerProfileManager;
 import com.chainz.core.playerserver.PlayerServer;
 import com.chainz.core.playerserver.PlayerServerManager;
@@ -40,7 +40,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class ChainZAPI {
-    private static final Economy eco = new EconomyManager();
     private static final LobbyOptions lo = new LobbyOptionsManager();
     private static final PlayerServer playerserver = new PlayerServerManager();
     private static final PlayerLevel level = new PlayerLevelManager();
@@ -49,7 +48,8 @@ public class ChainZAPI {
     private static final PlayerSkinData skindata = new PlayerSkinDataManager();
     private static final Joins joins = new JoinsManager();
     private static final NameData namedata = new NameDataManager();
-    private static final PlayerProfileInterface playerprofile = new PlayerProfileManager();
+    private static final PlayerProfileManager playerprofile = new PlayerProfileManager(new PlayerProfileDatabase());
+    private static final EconomyManager eco = new EconomyManager(new EconomyDatabase(), playerprofile);
     private static final ChainZAsync async = new ChainZAsync();
     private static final AdReward adreward = new JAdReward();
     private static final ArenaData arenaManager = new ArenaDataManager();
@@ -57,7 +57,7 @@ public class ChainZAPI {
     private static final ReserveSlots rs = new ReserveSlotsManager();
     private static final DisplayFormatter df = new DisplayFormatter();
 
-    public static Economy getEconomyManager() {
+    public static EconomyManager getEconomyManager() {
         return ChainZAPI.eco;
     }
 
@@ -97,7 +97,7 @@ public class ChainZAPI {
         return ChainZAPI.playersettings;
     }
 
-    public static PlayerProfileInterface getPlayerProfileManager() {
+    public static PlayerProfileManager getPlayerProfileManager() {
         return ChainZAPI.playerprofile;
     }
 

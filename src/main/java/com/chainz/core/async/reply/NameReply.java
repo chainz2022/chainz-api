@@ -2,11 +2,13 @@ package com.chainz.core.async.reply;
 
 import com.chainz.core.async.request.RequestType;
 
+import java.util.UUID;
+
 public class NameReply extends Reply {
-    protected String uuid;
+    protected UUID uuid;
     protected String name;
 
-    public NameReply(String uuid, String name) {
+    public NameReply(UUID uuid, String name) {
         this.uuid = uuid;
         this.name = name;
     }
@@ -16,7 +18,7 @@ public class NameReply extends Reply {
         return RequestType.NAMEDATA;
     }
 
-    public String getUUID() {
+    public UUID getUUID() {
         return this.uuid;
     }
 

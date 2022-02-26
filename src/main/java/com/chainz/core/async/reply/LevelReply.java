@@ -2,12 +2,14 @@ package com.chainz.core.async.reply;
 
 import com.chainz.core.async.request.RequestType;
 
+import java.util.UUID;
+
 public class LevelReply extends Reply {
-    protected String uuid;
+    protected UUID uuid;
     protected Integer level;
     protected Integer percent;
 
-    public LevelReply(String uuid, Integer level, Integer percent) {
+    public LevelReply(UUID uuid, Integer level, Integer percent) {
         this.uuid = uuid;
         this.level = level;
         this.percent = percent;
@@ -18,7 +20,7 @@ public class LevelReply extends Reply {
         return RequestType.PLAYERLEVEL;
     }
 
-    public String getUUID() {
+    public UUID getUUID() {
         return this.uuid;
     }
 

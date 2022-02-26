@@ -1,19 +1,18 @@
 package com.chainz.core.playerskindata;
 
-import com.chainz.core.async.reply.CallbackReply;
 import com.chainz.core.async.reply.PlayerSkinDataReply;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public interface PlayerSkinData {
-    void getGameProfileChange(final Player p0, final CallbackReply p1);
+    PlayerSkinDataReply getGameProfileChange(Player p01);
 
-    void getGameProfileChange(final String p0, final CallbackReply p1);
+    PlayerSkinDataReply getGameProfileChange(UUID p0);
 
-    PlayerSkinDataReply getGameProfileChangeSync(final String p0);
+    boolean changeNickname(Player p0, String p1);
 
-    void changeNickname(final Player p0, final String p1, final CallbackReply p2);
+    void cachePlayerSkin(UUID p0);
 
-    void cachePlayerSkin(final String p0);
-
-    void getPlayerSkinData(final String p0, final CallbackReply p1);
+    PlayerSkinDataReply getPlayerSkinData(UUID p0);
 }
