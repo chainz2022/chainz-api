@@ -2,6 +2,8 @@ name: ChainZAPI
 author: Estok
 version: 1.0
 main: com.chainz.core.Core
+softdepend:
+  - NametagEdit
 depend: [ LuckPerms, ProtocolLib ]
 description: ChainZ main API system for all its plugins and services.
 commands:

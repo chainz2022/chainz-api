@@ -2,6 +2,8 @@ package es.eltrueno.npc.skin;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +27,13 @@ public class SkinManager {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static SkinData extractFromProfile(GameProfile profile) {
+        Property property = profile.getProperties().get("textures").iterator().next();
+        String texture = property.getValue();
+        String signature = property.getSignature();
+        return new SkinData(texture, signature);
     }
 
     public static SkinData getSkinFromMojangAsync(String identifier) {

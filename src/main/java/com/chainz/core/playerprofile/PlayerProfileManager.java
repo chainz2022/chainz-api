@@ -6,12 +6,15 @@ import com.chainz.core.sql.SQLManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class PlayerProfileManager implements PlayerProfileInterface {
-    private final HashMap<UUID, Optional<PlayerProfile>> profileCache = new HashMap<>();
-    private final HashMap<UUID, Optional<PlayerProfile>> dbCache = new HashMap<>();
+    private final HashMap<UUID, PlayerProfile> profileCache = new HashMap<>();
+    private final HashMap<UUID, PlayerProfile> dbCache = new HashMap<>();
 
     private final List<UUID> pending = new ArrayList<>();
 
@@ -22,74 +25,78 @@ public class PlayerProfileManager implements PlayerProfileInterface {
     }
 
     public Double getCoins(UUID uuid) {
-        return this.getPlayerProfileFromUUID(uuid).getCoins();
+        PlayerProfile profile = profileCache.get(uuid);
+        if (profile == null) {
+            return 0.0D;
+        }
+
+        return profile.getCoins();
     }
 
     public boolean addCoins(UUID uuid, Double amount, boolean multiply) {
-        Optional<PlayerProfile> profile = profileCache.get(uuid);
-        if (profile == null || profile.isEmpty()) {
+        PlayerProfile profile = profileCache.get(uuid);
+        if (profile == null) {
             return false;
         }
 
-        amount = multiply ? (amount * profile.get().getMultiplier()) : amount;
-        profile.get().addCoins(amount);
+        amount = multiply ? (amount * profile.getMultiplier()) : amount;
+        profile.addCoins(amount);
         return true;
     }
 
     public boolean setLevel(UUID uuid, int level) {
-        Optional<PlayerProfile> profile = profileCache.get(uuid);
-        if (profile == null || profile.isEmpty()) {
+        PlayerProfile profile = profileCache.get(uuid);
+        if (profile == null) {
             return false;
         }
 
-        profile.get().setLevel(level);
+        profile.setLevel(level);
         return true;
     }
 
     public boolean setPlayerMultiplier(UUID uuid, Double multiplier) {
-        Optional<PlayerProfile> profile = profileCache.get(uuid);
-        if (profile == null || profile.isEmpty()) {
+        PlayerProfile profile = profileCache.get(uuid);
+        if (profile == null) {
             return false;
         }
 
-        profile.get().setMultiplier(multiplier);
+        profile.setMultiplier(multiplier);
         return true;
     }
 
     public boolean removeCoins(UUID uuid, Double remove) {
-        Optional<PlayerProfile> profile = profileCache.get(uuid);
-        if (profile == null || profile.isEmpty()) {
+        PlayerProfile profile = profileCache.get(uuid);
+        if (profile == null) {
             return false;
         }
 
-        profile.get().addCoins(-remove);
+        profile.addCoins(-remove);
         return true;
     }
 
     public Double getPlayerMultiplier(UUID uuid) {
-        return this.getPlayerProfileFromUUID(uuid).getMultiplier();
+        PlayerProfile profile = profileCache.get(uuid);
+        if (profile == null) {
+            return 0.0D;
+        }
+
+        return profile.getMultiplier();
     }
 
     public PlayerProfile getPlayerProfileFromUUID(UUID uuid) {
         if (pending.contains(uuid))
             return new OnlinePlayerProfile(uuid, "Unknown", 0D, 0D, 0, 0, null, null, null);
 
-        Optional<PlayerProfile> profile = profileCache.computeIfAbsent(uuid, u -> {
+        return profileCache.computeIfAbsent(uuid, u -> {
             pending.add(u);
-            Optional<PlayerProfile> current = Optional.of(db.getPlayerProfileFromUUID(u));
+            PlayerProfile current = db.getPlayerProfileFromUUID(u);
             dbCache.put(u, current);
             pending.remove(u);
-            PlayerProfile oldProfile = current.get();
 
-            return Optional.of(new OnlinePlayerProfile(u, oldProfile.getName(), oldProfile.getCoins(),
-                    oldProfile.getMultiplier(), oldProfile.getLevel(), oldProfile.getExp(),
-                    oldProfile.getSkinValue(), oldProfile.getSkinSignature(), ChainZAPI.getServerName()));
+            return new OnlinePlayerProfile(u, current.getName(), current.getCoins(),
+                    current.getMultiplier(), current.getLevel(), current.getExp(),
+                    current.getSkinValue(), current.getSkinSignature(), ChainZAPI.getServerName());
         });
-
-        if (profile.isEmpty())
-            return new OnlinePlayerProfile(uuid, "Unknown", 0D, 0D, 0, 0, null, null, null);
-
-        return profile.get();
     }
 
     public boolean playerExists(UUID uuid) {
@@ -126,35 +133,35 @@ public class PlayerProfileManager implements PlayerProfileInterface {
     }
 
     public void consistency(UUID uuid) {
-        profileCache.computeIfPresent(uuid, (u, balance) -> {
-            sync(u, balance);
+        profileCache.computeIfPresent(uuid, (u, profile) -> {
+            sync(u, profile, true);
             return null;
         });
     }
 
-    private void sync(UUID uuid, Optional<PlayerProfile> balance) {
-        Optional<PlayerProfile> old = dbCache.remove(uuid);
+    private void sync(UUID uuid, PlayerProfile profile, boolean async) {
+        PlayerProfile old = dbCache.remove(uuid);
 
-        if (balance == null || balance.isEmpty()) {
+        if (profile == null) {
             return;
         }
 
-        if (old == null || old.isEmpty()) {
+        if (old == null) {
             throw new IllegalStateException();
         }
 
-        if (balance.get().differs(old.get())) {
-            db.updatePlayerProfile(uuid, old.get(), balance.get());
+        if (profile.differs(old)) {
+            db.updatePlayerProfile(uuid, old, profile, async);
         }
     }
 
     public void save(UUID uuid) {
-        sync(uuid, profileCache.remove(uuid));
+        sync(uuid, profileCache.remove(uuid), true);
     }
 
     public void saveAll() {
         profileCache.entrySet().removeIf(e -> {
-            sync(e.getKey(), e.getValue());
+            sync(e.getKey(), e.getValue(), false);
             return true;
         });
     }

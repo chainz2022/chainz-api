@@ -1,6 +1,8 @@
 package es.eltrueno.npc.skin;
 
-import org.bukkit.entity.Player;
+import com.mojang.authlib.GameProfile;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.plugin.Plugin;
 
 public class TruenoNPCSkin {
@@ -31,9 +33,14 @@ public class TruenoNPCSkin {
         return null;
     }
 
-    public SkinData getSkinData(Player p) {
+    public SkinData getSkinData(OfflinePlayer p) {
         if (type == SkinType.PLAYER) {
-            return SkinManager.getSkinFromMojangAsync(p.getUniqueId().toString());
+            GameProfile profile = ((CraftPlayer) p).getHandle().getProfile();
+            if (profile != null && p.isOnline()) {
+                return SkinManager.extractFromProfile(profile);
+            } else {
+                return SkinManager.getSkinFromMojangAsync(p.getUniqueId().toString());
+            }
         }
         return null;
     }

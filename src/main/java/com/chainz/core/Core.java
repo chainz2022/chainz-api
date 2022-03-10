@@ -11,6 +11,7 @@ import com.chainz.core.playerskindata.commands.PlayerSkinCommands;
 import com.chainz.core.sql.SQLManager;
 import com.chainz.core.utils.config.ConfigManager;
 import com.chainz.core.vanish.commands.VanishCommands;
+import es.eltrueno.hologram.TruenoHologramAPI;
 import es.eltrueno.protocol.packetlistening.ProtocolLibListener;
 import es.eltrueno.protocol.packetlistening.TinyProtocolListener;
 import org.bukkit.Bukkit;
@@ -117,6 +118,7 @@ public class Core extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        TruenoHologramAPI.destroyAllHolos();
         ChainZAPI.getPlayerProfileManager().saveAll();
         ChainZAPI.getServerData().setServerStatusSync(Boolean.FALSE);
         SQLManager.closeConnection();

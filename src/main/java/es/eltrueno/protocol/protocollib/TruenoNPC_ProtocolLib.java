@@ -55,9 +55,9 @@ public class TruenoNPC_ProtocolLib implements TruenoNPC {
                 for (TruenoNPC_ProtocolLib npc : npcs) {
                     for (Player pl : Bukkit.getOnlinePlayers()) {
                         if (npc.location.getWorld().equals(pl.getWorld())) {
-                            if (npc.location.distance(pl.getLocation()) > 60 && npc.rendered.contains(pl)) {
+                            if (npc.location.distance(pl.getLocation()) > 400 && npc.rendered.contains(pl)) {
                                 npc.destroy(pl);
-                            } else if (npc.location.distance(pl.getLocation()) < 60 && !npc.rendered.contains(pl)) {
+                            } else if (npc.location.distance(pl.getLocation()) < 400 && !npc.rendered.contains(pl)) {
                                 if (!npc.waiting.contains(pl)) {
                                     npc.waiting.add(pl);
                                     npc.spawn(pl);
@@ -76,7 +76,7 @@ public class TruenoNPC_ProtocolLib implements TruenoNPC {
                         npc.destroy(pl);
                     }
                 }
-            }, 20 * (60 * 5), 20 * (60 * 5));
+            }, 20 * 300, 20 * 300);
         }
     }
 
@@ -116,21 +116,6 @@ public class TruenoNPC_ProtocolLib implements TruenoNPC {
     @Override
     public int getNpcID() {
         return npcid;
-    }
-
-    private String getRandomString(int lenght) {
-        StringBuilder randStr = new StringBuilder();
-        long milis = new GregorianCalendar().getTimeInMillis();
-        Random r = new Random(milis);
-        int i = 0;
-        while (i < lenght) {
-            char c = (char) r.nextInt(255);
-            if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z')) {
-                randStr.append(c);
-                i++;
-            }
-        }
-        return randStr.toString();
     }
 
     private JsonObject getChacheFile(Plugin plugin) {
@@ -187,8 +172,7 @@ public class TruenoNPC_ProtocolLib implements TruenoNPC {
             if (jsonFile != null) {
                 JsonArray oldskindata = jsonFile.getAsJsonArray("skindata");
                 for (JsonElement element : oldskindata) {
-                    if (element.getAsJsonObject().get("id").getAsInt() == this.npcid) {
-                    } else {
+                    if (!(element.getAsJsonObject().get("id").getAsInt() == this.npcid)) {
                         newskindata.add(element);
                     }
                 }

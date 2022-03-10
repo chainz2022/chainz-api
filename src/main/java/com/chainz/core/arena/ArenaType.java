@@ -6,7 +6,7 @@ public enum ArenaType {
     public String getName() {
         return switch (this) {
             case SKYWARS -> "SkyWars";
-            case THEBRIDGE -> "TheBridge Random";
+            case THEBRIDGE -> "TheBridge";
             case THEBRIDGE_1 -> "TheBridge Singles";
             case THEBRIDGE_2 -> "TheBridge Doubles";
             case THEBRIDGE_4 -> "TheBridge Squads";

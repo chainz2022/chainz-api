@@ -31,7 +31,7 @@ public class PlayerLevelCommands implements Listener, CommandExecutor {
                         uuid = Bukkit.getOfflinePlayer(playerName).getUniqueId().toString();
                     }
                     int level = Integer.parseInt(args[1]);
-                    ChainZAPI.getLevelSystem().setLevel(UUID.fromString(uuid), level);
+                    ChainZAPI.getPlayerProfileManager().setLevel(UUID.fromString(uuid), level);
                     sender.sendMessage("§eEstablecido nivel §b" + level + " §eal jugador §b" + uuid);
                 }
             } else if (args.length < 2) {
@@ -45,7 +45,7 @@ public class PlayerLevelCommands implements Listener, CommandExecutor {
                     uuid2 = Bukkit.getOfflinePlayer(playerName2).getUniqueId().toString();
                 }
                 int level2 = Integer.parseInt(args[1]);
-                ChainZAPI.getLevelSystem().setLevel(UUID.fromString(uuid2), level2);
+                ChainZAPI.getPlayerProfileManager().setLevel(UUID.fromString(uuid2), level2);
                 sender.sendMessage("§eEstablecido nivel §b" + level2 + " §eal jugador §b" + uuid2);
             }
         }

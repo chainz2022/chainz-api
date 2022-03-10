@@ -6,6 +6,7 @@ import com.chainz.core.utils.config.ConfigManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import redis.clients.jedis.Jedis;
@@ -62,7 +63,6 @@ public class ArenaDataManager implements ArenaData, Listener {
                 if (!ConfigManager.get("config.yml").getString("Redis.pass").isEmpty())
                     j.auth(ConfigManager.get("config.yml").getString("Redis.pass"));
                 j.publish(server, p.getUniqueId() + ":" + mapName);
-
                 j.close();
                 j.disconnect();
                 return true;
@@ -127,6 +127,12 @@ public class ArenaDataManager implements ArenaData, Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onKick(PlayerKickEvent event) {
+        gameQueue.remove(event.getPlayer());
+    }
+
 
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {

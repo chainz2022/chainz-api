@@ -10,19 +10,18 @@ import com.chainz.core.lobbyoptions.LobbyOptionsManager;
 import com.chainz.core.playerlevel.PlayerLevelManager;
 import com.chainz.core.playersettings.PlayerSettingsManager;
 import com.chainz.core.playerskindata.GameProfileChanger;
-import com.chainz.core.utils.Nametag;
 import com.chainz.core.utils.Tablist;
 import com.chainz.core.utils.config.ConfigManager;
 import com.chainz.core.vanish.VanishManager;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.nametagedit.plugin.NametagEdit;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -126,18 +125,6 @@ public class PlayerJoinListener implements Listener {
     }
 
     @EventHandler
-    public void removePrefix(PlayerQuitEvent ev) {
-        ev.setQuitMessage(null);
-        if (ConfigManager.get("config.yml").getBoolean("Enable_tags")) {
-            Player p = ev.getPlayer();
-            for (Player pl : Bukkit.getOnlinePlayers()) {
-                Nametag.deleteTeam(pl, p.getName());
-                Nametag.deleteTeam(p, pl.getName());
-            }
-        }
-    }
-
-    @EventHandler
     public void setPrefixAndTablist(PlayerJoinEvent ev) {
         ev.setJoinMessage(null);
         Player p = ev.getPlayer();
@@ -147,9 +134,7 @@ public class PlayerJoinListener implements Listener {
         if (ConfigManager.get("config.yml").getBoolean("Enable_tags")) {
             Bukkit.getScheduler().runTaskAsynchronously(Core.core, () -> {
                 String prefix = ChainZAPI.getDisplayFormatter().prefix(p);
-                Nametag ntag = new Nametag(p.getName(), p.getDisplayName(), prefix + "&e");
-                ntag.addPlayer(p);
-                ntag.updateAll();
+                NametagEdit.getApi().setPrefix(p, prefix);
             });
         }
 

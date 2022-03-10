@@ -1,7 +1,6 @@
 package com.chainz.core.economy;
 
 import com.chainz.core.sql.SQLManager;
-import org.bukkit.Bukkit;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,14 +18,14 @@ public class EconomyDatabase implements Economy {
                 ResultSet res = statement.executeQuery();
 
                 res.next();
-                double currentCoins = res.getDouble("coins");
+                double currentCoins = res.getFloat("coins");
 
                 PreparedStatement ps = SQLManager.getConnection().prepareStatement("UPDATE player SET coins=? WHERE uuid=?");
                 ps.clearParameters();
                 ps.setString(2, uuid.toString());
 
                 if (multiply) {
-                    double multiplier = res.getDouble("multiplier");
+                    double multiplier = res.getFloat("multiplier");
                     double multiplied = amount * multiplier;
                     ps.setDouble(1, currentCoins + multiplied);
                 } else {
@@ -158,7 +157,6 @@ public class EconomyDatabase implements Economy {
 
     @Override
     public Double getCoins(UUID uuid) {
-        Bukkit.broadcastMessage("FROM DB");
         CompletableFuture<Double> cf = CompletableFuture.supplyAsync(() -> {
             double coins;
             try {

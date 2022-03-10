@@ -1,6 +1,7 @@
 package com.chainz.core.playerprofile;
 
 import com.chainz.core.ChainZAPI;
+import com.chainz.core.Core;
 import com.chainz.core.async.reply.*;
 import com.chainz.core.economy.PlayerEconomy;
 import com.google.gson.JsonElement;
@@ -31,8 +32,8 @@ public class PlayerProfileDatabase {
             LevelReply levelReply = ChainZAPI.getLevelSystem().getLevelInfo(uuid);
             ExpReply expReply = ChainZAPI.getLevelSystem().getExperienceInfo(uuid);
             PlayerServerReply playersvreply = ChainZAPI.getPlayerServerManager().getPlayerServer(uuid);
-            OnlinePlayerProfile onlineprofile = new OnlinePlayerProfile(uuid, namereply.getName(), coinsReply.getCoins(), coinsReply.getMultiplier(), levelReply.getLevel(), expReply.getExp(), playerSkinDataReply.getValue(), playerSkinDataReply.getSignature(), playersvreply.getServer());
-            PlayerProfileReply profileReply = new PlayerProfileReply(uuid, onlineprofile);
+            OnlinePlayerProfile onlineProfile = new OnlinePlayerProfile(uuid, namereply.getName(), coinsReply.getCoins(), coinsReply.getMultiplier(), levelReply.getLevel(), expReply.getExp(), playerSkinDataReply.getValue(), playerSkinDataReply.getSignature(), playersvreply.getServer());
+            PlayerProfileReply profileReply = new PlayerProfileReply(uuid, onlineProfile);
 
             return profileReply.getPlayerProfile();
         });
@@ -44,8 +45,20 @@ public class PlayerProfileDatabase {
         }
     }
 
-    public void updatePlayerProfile(UUID uuid, PlayerProfile oldProfile, PlayerProfile newProfile) {
-        CompletableFuture.supplyAsync(() -> {
+    public void updatePlayerProfile(UUID uuid, PlayerProfile oldProfile, PlayerProfile newProfile, boolean async) {
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(Core.core, () -> {
+                ChainZAPI.getLevelSystem().setLevel(uuid, newProfile.getLevel());
+
+                double expDiff = newProfile.getExp() - oldProfile.getExp();
+                ChainZAPI.getLevelSystem().addExperience(uuid, (int) expDiff);
+
+                double coinsDiff = newProfile.getCoins() - oldProfile.getCoins();
+                ChainZAPI.getEconomyManager().getDatabase().addCoins(uuid, coinsDiff, false);
+
+                ChainZAPI.getEconomyManager().getDatabase().setPlayerMultiplier(uuid, newProfile.getMultiplier());
+            });
+        } else {
             ChainZAPI.getLevelSystem().setLevel(uuid, newProfile.getLevel());
 
             double expDiff = newProfile.getExp() - oldProfile.getExp();
@@ -55,8 +68,6 @@ public class PlayerProfileDatabase {
             ChainZAPI.getEconomyManager().getDatabase().addCoins(uuid, coinsDiff, false);
 
             ChainZAPI.getEconomyManager().getDatabase().setPlayerMultiplier(uuid, newProfile.getMultiplier());
-
-            return null;
-        });
+        }
     }
 }

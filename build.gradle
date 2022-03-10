@@ -26,8 +26,10 @@ dependencies {
     compileOnly 'org.ocpsoft.prettytime:prettytime:5.0.2.Final'
     implementation 'redis.clients:jedis:4.1.0'
     implementation 'org.slf4j:slf4j-api:1.7.36'
+    implementation 'com.zaxxer:HikariCP:5.0.1'
     compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
     compileOnly files('libs/craftbukkit-1.12.1.jar')
+    compileOnly files('libs/NametagEditApi.jar')
     compileOnly files('libs/vault.jar')
     compileOnly group: "com.comphenix.protocol", name: "ProtocolLib", version: "4.7.0"
     compileOnly 'net.luckperms:api:5.3'

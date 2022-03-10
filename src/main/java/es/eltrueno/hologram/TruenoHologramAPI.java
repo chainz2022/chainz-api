@@ -27,6 +27,12 @@ public class TruenoHologramAPI {
         }
     }
 
+    public static void destroyAllHolos() {
+        for (TruenoHologram holo : holograms) {
+            holo.delete();
+        }
+    }
+
     public static TruenoHologram getNewHologram() {
         if (TruenoHologramAPI.version == null) {
             setupVersion();
